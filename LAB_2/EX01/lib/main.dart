@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Exercise 1 - Basic Syntax',
+      title: 'Exercise 1 - Basic Syntax & Data Types',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
