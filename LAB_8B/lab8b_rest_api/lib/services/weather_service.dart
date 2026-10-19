@@ -5,6 +5,11 @@ import 'package:http/http.dart' as http;
 import '../models/city_location.dart';
 import '../models/weather_data.dart';
 
+// ============================================================================
+// LAB 8B - STEP 2 & STEP 5: EXPLORE THE API & PLAN THE SERVICE LAYER
+// - Endpoints: Open-Meteo Geocoding API & Open-Meteo Weather Forecast API
+// - Methods: searchCities() and fetchWeather() using http package
+// ============================================================================
 class WeatherService {
   final http.Client client;
 

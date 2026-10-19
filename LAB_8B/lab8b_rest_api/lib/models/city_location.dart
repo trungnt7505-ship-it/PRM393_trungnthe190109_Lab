@@ -1,3 +1,6 @@
+// ============================================================================
+// LAB 8B - STEP 4: DEFINE MODEL CLASSES (CityLocation model with fromJson)
+// ============================================================================
 class CityLocation {
   final String name;
   final double latitude;

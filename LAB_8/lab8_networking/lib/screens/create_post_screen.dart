@@ -88,7 +88,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAlignment: CrossAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
                 'Send POST Request to API',

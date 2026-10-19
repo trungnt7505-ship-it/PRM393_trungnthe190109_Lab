@@ -1,3 +1,6 @@
+// ============================================================================
+// LAB 8B - STEP 4 & STEP 7: DEFINE MODEL CLASSES & PURPOSE-DRIVEN ELEMENTS
+// ============================================================================
 import 'package:flutter/material.dart';
 
 class DailyForecast {
@@ -107,32 +110,48 @@ class WeatherData {
 
   IconData get iconData => getWeatherIcon(weatherCode, isDay);
 
-  // Purpose-Driven Decision 1: Umbrella Recommendation
-  String get umbrellaAdvice {
-    if (precipitation > 0.1 || weatherCode >= 51) {
-      return "Take an umbrella! Rain or precipitation is active/expected.";
-    }
-    return "No umbrella needed today. Clear/dry conditions expected.";
-  }
-
+  // Scenario A - Purpose-Driven Decision 1: Do I need an umbrella today?
   bool get needsUmbrella => precipitation > 0.1 || weatherCode >= 51;
 
-  // Purpose-Driven Decision 2: Outdoor Activity Advice
+  String get umbrellaAdvice {
+    if (needsUmbrella) {
+      return "Take an umbrella! Rain or precipitation is expected today.";
+    }
+    return "No umbrella needed today. Dry conditions expected.";
+  }
+
+  // Scenario A - Purpose-Driven Decision 2: Is it a good day for outdoor activities?
   String get activityAdvice {
     if (weatherCode >= 95) {
-      return "Stay indoors! Thunderstorms present severe safety risks.";
+      return "Stay indoors due to severe thunderstorm risk";
     } else if (precipitation > 1.0) {
-      return "Indoor activities recommended due to rainy weather.";
-    } else if (temperature > 35.0) {
-      return "Too hot for outdoor sports. Stay hydrated and seek air conditioning.";
+      return "Indoor activities recommended due to rainy weather";
+    } else if (temperature > 32.0) {
+      return "Too hot for outdoor sports";
     } else if (temperature < 10.0) {
-      return "Chilly conditions. Bundle up if going for outdoor exercise.";
+      return "Too cold for outdoor sports";
     } else {
-      return "Great weather for outdoor activities! Nice day for a walk or exercise.";
+      return "Nice weather for a walk";
     }
   }
 
-  // Purpose-Driven Decision 3: Clothing Recommendation
+  // Scenario A - Purpose-Driven Decision 3: How hot/cold will it be this afternoon?
+  String get afternoonTempAdvice {
+    if (dailyForecasts.isNotEmpty) {
+      final maxT = dailyForecasts.first.maxTemp.round();
+      final minT = dailyForecasts.first.minTemp.round();
+      if (maxT > 32) {
+        return "Hot afternoon expected around $maxT°C (Min $minT°C). Stay hydrated!";
+      } else if (maxT < 18) {
+        return "Cold afternoon expected around $maxT°C (Min $minT°C). Wear warm clothes!";
+      } else {
+        return "Pleasant temperature around $maxT°C (Min $minT°C) this afternoon.";
+      }
+    }
+    return "Expected peak temperature around ${temperature.round()}°C this afternoon.";
+  }
+
+  // Outfit Recommendation
   String get clothingAdvice {
     if (temperature < 12.0) {
       return "Wear a heavy jacket or coat and warm layer.";

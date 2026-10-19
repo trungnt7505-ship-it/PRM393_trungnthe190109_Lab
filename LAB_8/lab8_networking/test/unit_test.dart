@@ -9,7 +9,7 @@ void main() {
   group('Lab 8.2 - Post Model Unit Tests', () {
     test('Post.fromJson correctly converts Map to Post object', () {
       final jsonMap = {
-        'id': 1,
+        'id': 999,
         'userId': 10,
         'title': 'Test Title',
         'body': 'Test Body Content',
@@ -17,7 +17,7 @@ void main() {
 
       final post = Post.fromJson(jsonMap);
 
-      expect(post.id, equals(1));
+      expect(post.id, equals(999));
       expect(post.userId, equals(10));
       expect(post.title, equals('Test Title'));
       expect(post.body, equals('Test Body Content'));
@@ -45,13 +45,13 @@ void main() {
       final mockClient = MockClient((request) async {
         final mockResponse = [
           {
-            'id': 1,
+            'id': 901,
             'userId': 1,
             'title': 'Post 1',
             'body': 'Body 1',
           },
           {
-            'id': 2,
+            'id': 902,
             'userId': 1,
             'title': 'Post 2',
             'body': 'Body 2',

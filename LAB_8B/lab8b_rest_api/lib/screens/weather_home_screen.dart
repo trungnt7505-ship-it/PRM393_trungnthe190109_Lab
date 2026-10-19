@@ -3,6 +3,12 @@ import '../models/city_location.dart';
 import '../models/weather_data.dart';
 import '../services/weather_service.dart';
 
+// ============================================================================
+// LAB 8B - STEP 3, STEP 6 & STEP 7:
+// - STEP 3: Design the UI (Search bar, city chips, weather cards, metrics grid)
+// - STEP 6: Integrate into UI using FutureBuilder (Loading, Error & Data states)
+// - STEP 7: Add Purpose-Driven Elements (Umbrella, activity & temperature advice)
+// ============================================================================
 class WeatherHomeScreen extends StatefulWidget {
   const WeatherHomeScreen({super.key});
 
@@ -454,36 +460,46 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
           const SizedBox(height: 12),
           Text(
             'Feels like ${weather.apparentTemperature.round()}°C',
-            style: const TextStyle(fontSize: 14, color: Colors.white80),
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
           ),
         ],
       ),
     );
   }
 
-  // --- Purpose-Driven Decision Cards ---
+  // --- Purpose-Driven Decision Cards (Scenario A) ---
   Widget _buildDecisionCards(WeatherData weather, ThemeData theme) {
     return Column(
       children: [
-        // Umbrella Advice
+        // Question 1: Do I need an umbrella today?
         _buildDecisionTile(
           icon: weather.needsUmbrella ? Icons.umbrella : Icons.wb_sunny_outlined,
           iconColor: weather.needsUmbrella ? Colors.blue.shade700 : Colors.amber.shade700,
           backgroundColor: weather.needsUmbrella ? Colors.blue.shade50 : Colors.amber.shade50,
-          title: 'Umbrella Needed?',
+          title: 'Do I need an umbrella today?',
           subtitle: weather.umbrellaAdvice,
-          badgeText: weather.needsUmbrella ? 'YES' : 'NO',
+          badgeText: weather.needsUmbrella ? 'TAKE UMBRELLA' : 'NO UMBRELLA',
           badgeColor: weather.needsUmbrella ? Colors.blue : Colors.orange,
         ),
         const SizedBox(height: 10),
 
-        // Activity Advice
+        // Question 2: Is it a good day for outdoor activities?
         _buildDecisionTile(
           icon: Icons.directions_run_rounded,
           iconColor: Colors.green.shade700,
           backgroundColor: Colors.green.shade50,
-          title: 'Outdoor Activities',
+          title: 'Is it a good day for outdoor activities?',
           subtitle: weather.activityAdvice,
+        ),
+        const SizedBox(height: 10),
+
+        // Question 3: How hot/cold will it be this afternoon?
+        _buildDecisionTile(
+          icon: Icons.thermostat_auto_rounded,
+          iconColor: Colors.orange.shade800,
+          backgroundColor: Colors.orange.shade50,
+          title: 'How hot/cold will it be this afternoon?',
+          subtitle: weather.afternoonTempAdvice,
         ),
         const SizedBox(height: 10),
 
@@ -492,7 +508,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
           icon: Icons.checkroom_rounded,
           iconColor: Colors.purple.shade700,
           backgroundColor: Colors.purple.shade50,
-          title: 'Outfit Recommendation',
+          title: 'What should I wear?',
           subtitle: weather.clothingAdvice,
         ),
       ],
@@ -570,7 +586,7 @@ class _WeatherHomeScreenState extends State<WeatherHomeScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, height: 1.3, color: Colors.black80),
+                  style: const TextStyle(fontSize: 13, height: 1.3, color: Colors.black87),
                 ),
               ],
             ),
