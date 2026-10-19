@@ -1,91 +1,119 @@
 /*
  * =====================================================================
- * Lab 10.2 – Real REST API Login
- * Goal: Authenticate users using a real REST API (DummyJSON).
- * Description: This lab replaces mock authentication with a real HTTP login request.
- *              Students practice handling API responses, loading states, and errors.
+ * Lab 10.3 – Auto Login & Logout
+ * Goal: Persist authentication state and restore login automatically.
+ * Description: Students implement session persistence using SharedPreferences
+ *              and manage login state across app restarts.
  * =====================================================================
  */
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const Lab10_2App());
+  runApp(const Lab10_3App());
 }
 
-class Lab10_2App extends StatelessWidget {
-  const Lab10_2App({super.key});
+class Lab10_3App extends StatelessWidget {
+  const Lab10_3App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lab 10.2 Real API Login',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: const RealApiLoginScreen(),
+      title: 'Lab 10.3 Auto Login & Logout',
+      theme: ThemeData(primarySwatch: Colors.orange),
+      home: const SplashScreen(),
     );
   }
 }
 
-class RealApiLoginScreen extends StatefulWidget {
-  const RealApiLoginScreen({super.key});
+// Step 3: Implement SplashScreen routing
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  State<RealApiLoginScreen> createState() => _RealApiLoginScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _RealApiLoginScreenState extends State<RealApiLoginScreen> {
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkTokenAndRoute();
+  }
+
+  // Step 4: Auto-login if token exists
+  Future<void> _checkTokenAndRoute() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
+    // Expected Output: App skips login when token exists
+    if (token != null && token.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainHomeScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginSessionScreen()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class LoginSessionScreen extends StatefulWidget {
+  const LoginSessionScreen({super.key});
+
+  @override
+  State<LoginSessionScreen> createState() => _LoginSessionScreenState();
+}
+
+class _LoginSessionScreenState extends State<LoginSessionScreen> {
   final _usernameController = TextEditingController(text: 'emilys');
   final _passwordController = TextEditingController(text: 'emilyspassword');
-
-  // Step 4: Handle loading and error states
   bool _isLoading = false;
-  String _errorMessage = '';
 
-  Future<void> _loginWithApi() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = '';
-    });
-
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
     try {
-      // Step 2: Send POST login request to DummyJSON
       final response = await http.post(
         Uri.parse('https://dummyjson.com/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': 'emilys',       // Thử đổi username khác nếu cần
-          'password': 'emilyspassword', // Kiểm tra lại mật khẩu test của tài khoản này
+          'username': _usernameController.text.trim(),
+          'password': _passwordController.text.trim(),
         }),
       );
 
       final data = jsonDecode(response.body);
-
-      // Step 3: Parse token from response
       if (response.statusCode == 200 && data['token'] != null) {
-        String token = data['token'];
-        String firstName = data['firstName'] ?? 'User';
+        // Step 2: Save token after login
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', data['token']);
 
         if (!mounted) return;
-        // Step 5: Navigate to Home on success
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeApiScreen(username: firstName, token: token),
-          ),
+          MaterialPageRoute(builder: (context) => const MainHomeScreen()),
         );
       } else {
-        // Expected Output: Errors are handled gracefully
-        setState(() {
-          _errorMessage = data['message'] ?? 'Login failed. Invalid credentials.';
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? 'Login failed')),
+        );
       }
-    } catch (e) {
-      // Step 4: Handle loading and error states
-      setState(() {
-        _errorMessage = 'Network error: $e';
-      });
     } finally {
       setState(() => _isLoading = false);
     }
@@ -94,34 +122,18 @@ class _RealApiLoginScreenState extends State<RealApiLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lab 10.2 – Real REST API Login')),
+      appBar: AppBar(title: const Text('Lab 10.3 – Auto Login & Logout')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 12),
-            // Display error state
-            if (_errorMessage.isNotEmpty)
-              Text(_errorMessage, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 24),
-            // Display loading state
+            TextField(controller: _usernameController, decoration: const InputDecoration(labelText: 'Username')),
+            TextField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
+            const SizedBox(height: 20),
             _isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: _loginWithApi,
-              child: const Text('Login via API'),
-            ),
+                : ElevatedButton(onPressed: _login, child: const Text('Login & Save Session')),
           ],
         ),
       ),
@@ -129,31 +141,34 @@ class _RealApiLoginScreenState extends State<RealApiLoginScreen> {
   }
 }
 
-// Expected Output: Login succeeds using real API
-class HomeApiScreen extends StatelessWidget {
-  final String username;
-  final String token;
-  const HomeApiScreen({super.key, required this.username, required this.token});
+class MainHomeScreen extends StatelessWidget {
+  const MainHomeScreen({super.key});
+
+  // Step 5: Logout clears session and returns to Login
+  // Expected Output: Logout forces re-authentication
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginSessionScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Welcome, $username')),
+      appBar: AppBar(title: const Text('Home - Auto Login Active')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Hello, $username!', style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Token: ${token.substring(0, 20)}...', style: const TextStyle(color: Colors.grey)),
+            const Text('Auto-login successful!', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RealApiLoginScreen()),
-                );
-              },
+              onPressed: () => _logout(context),
               child: const Text('Logout'),
             ),
           ],
