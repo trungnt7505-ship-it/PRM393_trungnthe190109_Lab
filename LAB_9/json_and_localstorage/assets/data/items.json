@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Flutter Basics",
+    "category": "Book",
+    "description": "Introduction to Flutter framework and Dart language."
+  },
+  {
+    "id": 2,
+    "title": "JSON & Storage",
+    "category": "Course",
+    "description": "Learn local persistence with JSON files."
+  },
+  {
+    "id": 3,
+    "title": "State Management",
+    "category": "Tutorial",
+    "description": "Managing app state with modern patterns."
+  },
+  {
+    "id": 4,
+    "title": "Dart Data Types",
+    "category": "Guide",
+    "description": "Master lists, maps, futures, and async Dart."
+  }
+]
