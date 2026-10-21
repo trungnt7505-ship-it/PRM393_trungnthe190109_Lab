@@ -2,15 +2,11 @@
  * =====================================================================
  * Lab 10.3 – Auto Login & Logout
  * Goal: Persist authentication state and restore login automatically.
- * Description: Students implement session persistence using SharedPreferences
- *              and manage login state across app restarts.
  * =====================================================================
  */
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const Lab10_3App());
@@ -41,18 +37,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkTokenAndRoute();
+    _checkAutoLogin();
   }
 
   // Step 4: Auto-login if token exists
-  Future<void> _checkTokenAndRoute() async {
+  Future<void> _checkAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;
-    // Expected Output: App skips login when token exists
     if (token != null && token.isNotEmpty) {
       Navigator.pushReplacement(
         context,
@@ -82,41 +77,23 @@ class LoginSessionScreen extends StatefulWidget {
 }
 
 class _LoginSessionScreenState extends State<LoginSessionScreen> {
-  final _usernameController = TextEditingController(text: 'emilys');
-  final _passwordController = TextEditingController(text: 'emilyspassword');
+  final _emailController = TextEditingController(text: 'admin@fpt.edu.vn');
+  final _passwordController = TextEditingController(text: '123456');
   bool _isLoading = false;
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
-    try {
-      final response = await http.post(
-        Uri.parse('https://dummyjson.com/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': _usernameController.text.trim(),
-          'password': _passwordController.text.trim(),
-        }),
-      );
+    await Future.delayed(const Duration(seconds: 1));
 
-      final data = jsonDecode(response.body);
-      if (response.statusCode == 200 && data['token'] != null) {
-        // Step 2: Save token after login
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', data['token']);
+    // Step 2: Save token after login
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', 'mock_secure_token_xyz');
 
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainHomeScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Login failed')),
-        );
-      }
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainHomeScreen()),
+    );
   }
 
   @override
@@ -128,9 +105,10 @@ class _LoginSessionScreenState extends State<LoginSessionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(controller: _usernameController, decoration: const InputDecoration(labelText: 'Username')),
+            TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email')),
+            const SizedBox(height: 12),
             TextField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             _isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(onPressed: _login, child: const Text('Login & Save Session')),
@@ -145,7 +123,6 @@ class MainHomeScreen extends StatelessWidget {
   const MainHomeScreen({super.key});
 
   // Step 5: Logout clears session and returns to Login
-  // Expected Output: Logout forces re-authentication
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
@@ -160,7 +137,7 @@ class MainHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home - Auto Login Active')),
+      appBar: AppBar(title: const Text('Home - Session Active')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -169,7 +146,7 @@ class MainHomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _logout(context),
-              child: const Text('Logout'),
+              child: const Text('Logout & Clear Session'),
             ),
           ],
         ),
