@@ -105,7 +105,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController(text: 'emilys');
-  final _passwordController = TextEditingController(text: 'emilyspassword');
+  final _passwordController = TextEditingController(text: 'emilyspass');
   bool _isLoading = false;
 
   // Minimum Required Feature 5: Local notification integration (LO7)
@@ -145,11 +145,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final data = jsonDecode(response.body);
+      final token = data['accessToken'] ?? data['token'];
 
-      if (response.statusCode == 200 && data['token'] != null) {
+      if (response.statusCode == 200 && token != null) {
         // Save session locally (Lab 10.3)
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', data['token']);
+        await prefs.setString('auth_token', token.toString());
         await prefs.setString('user_name', data['firstName'] ?? 'User');
 
         // Trigger Local Notification (Lab 10.5)
