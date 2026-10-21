@@ -1,152 +1,120 @@
 /*
  * =====================================================================
- * Lab 10.3 – Auto Login & Logout
- * Goal: Persist authentication state and restore login automatically.
+ * Lab 10.4 – Firebase Authentication (Google Sign-In Simulation)
+ * Goal: Integrate Google Sign-In UI and user profile management.
  * =====================================================================
  */
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const Lab10_3App());
+  runApp(const Lab10_4App());
 }
 
-class Lab10_3App extends StatelessWidget {
-  const Lab10_3App({super.key});
+class Lab10_4App extends StatelessWidget {
+  const Lab10_4App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lab 10.3 Auto Login & Logout',
-      theme: ThemeData(primarySwatch: Colors.orange),
-      home: const SplashScreen(),
+      title: 'Lab 10.4 Google Sign-In',
+      theme: ThemeData(primarySwatch: Colors.purple),
+      home: const GoogleSignInScreen(),
     );
   }
 }
 
-// Step 3: Implement SplashScreen routing
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class GoogleSignInScreen extends StatefulWidget {
+  const GoogleSignInScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<GoogleSignInScreen> createState() => _GoogleSignInScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAutoLogin();
-  }
-
-  // Step 4: Auto-login if token exists
-  Future<void> _checkAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    if (!mounted) return;
-    if (token != null && token.isNotEmpty) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainHomeScreen()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginSessionScreen()),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-class LoginSessionScreen extends StatefulWidget {
-  const LoginSessionScreen({super.key});
-
-  @override
-  State<LoginSessionScreen> createState() => _LoginSessionScreenState();
-}
-
-class _LoginSessionScreenState extends State<LoginSessionScreen> {
-  final _emailController = TextEditingController(text: 'admin@fpt.edu.vn');
-  final _passwordController = TextEditingController(text: '123456');
+class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
   bool _isLoading = false;
 
-  Future<void> _login() async {
+  // Step 3: Implement Google Sign-In flow (Simulated for instant running)
+  Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Step 2: Save token after login
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', 'mock_secure_token_xyz');
+    await Future.delayed(const Duration(seconds: 1)); // Simulating popup Google dialog
 
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const MainHomeScreen()),
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(
+          name: 'Nguyen Thanh Trung',
+          email: 'trungnt@fpt.edu.vn',
+          photoUrl: 'https://avatars.githubusercontent.com/u/10000000?v=4',
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lab 10.3 – Auto Login & Logout')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email')),
-            const SizedBox(height: 12),
-            TextField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
-            const SizedBox(height: 24),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(onPressed: _login, child: const Text('Login & Save Session')),
-          ],
+      appBar: AppBar(title: const Text('Lab 10.4 – Google Sign-In')),
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator()
+            : ElevatedButton.icon(
+          onPressed: _signInWithGoogle,
+          icon: const Icon(Icons.g_mobiledata, size: 30),
+          label: const Text('Sign in with Google'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
         ),
       ),
     );
   }
 }
 
-class MainHomeScreen extends StatelessWidget {
-  const MainHomeScreen({super.key});
+class ProfileScreen extends StatelessWidget {
+  final String name;
+  final String email;
+  final String photoUrl;
 
-  // Step 5: Logout clears session and returns to Login
-  Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+  const ProfileScreen({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.photoUrl,
+  });
 
-    if (!context.mounted) return;
+  // Step 5: Logout and return to Sign-In screen
+  void _signOut(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LoginSessionScreen()),
+      MaterialPageRoute(builder: (context) => const GoogleSignInScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Step 4: Display user profile information
     return Scaffold(
-      appBar: AppBar(title: const Text('Home - Session Active')),
+      appBar: AppBar(title: const Text('User Profile')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Auto-login successful!', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 20),
+            CircleAvatar(
+              radius: 45,
+              backgroundImage: NetworkImage(photoUrl),
+              onBackgroundImageError: (_, __) {},
+              child: const Icon(Icons.person, size: 45),
+            ),
+            const SizedBox(height: 16),
+            Text('Name: $name', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Email: $email', style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () => _logout(context),
-              child: const Text('Logout & Clear Session'),
+              onPressed: () => _signOut(context),
+              child: const Text('Sign Out'),
             ),
           ],
         ),
