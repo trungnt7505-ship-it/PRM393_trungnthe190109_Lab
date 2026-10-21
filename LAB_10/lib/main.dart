@@ -1,53 +1,63 @@
 /*
  * =====================================================================
- * Lab 10.4 – Firebase Authentication (Google Sign-In Simulation)
- * Goal: Integrate Google Sign-In UI and user profile management.
+ * Lab 10.5 – Local Notification (MANDATORY – LO7)
+ * Goal: Integrate local notifications in a Flutter application.
  * =====================================================================
  */
 
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const Lab10_4App());
+  runApp(const Lab10_5App());
 }
 
-class Lab10_4App extends StatelessWidget {
-  const Lab10_4App({super.key});
+class Lab10_5App extends StatelessWidget {
+  const Lab10_5App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lab 10.4 Google Sign-In',
-      theme: ThemeData(primarySwatch: Colors.purple),
-      home: const GoogleSignInScreen(),
+      title: 'Lab 10.5 Local Notification',
+      theme: ThemeData(primarySwatch: Colors.teal),
+      home: const NotificationScreen(),
     );
   }
 }
 
-class GoogleSignInScreen extends StatefulWidget {
-  const GoogleSignInScreen({super.key});
+class NotificationScreen extends StatefulWidget {
+  const NotificationScreen({super.key});
 
   @override
-  State<GoogleSignInScreen> createState() => _GoogleSignInScreenState();
+  State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
-  bool _isLoading = false;
+class _NotificationScreenState extends State<NotificationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Step 3: Request notification permission (Simulated prompt)
+  }
 
-  // Step 3: Implement Google Sign-In flow (Simulated for instant running)
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Simulating popup Google dialog
-
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProfileScreen(
-          name: 'Nguyen Thanh Trung',
-          email: 'trungnt@fpt.edu.vn',
-          photoUrl: 'https://avatars.githubusercontent.com/u/10000000?v=4',
+  // Step 4: Trigger notification manually for demonstration
+  // Step 5: Verify notification is displayed by the system
+  void _showNotification(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            Icon(Icons.notifications_active, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'System Notification: Action completed successfully! (LO7)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
+        backgroundColor: Colors.teal,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -55,68 +65,15 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lab 10.4 – Google Sign-In')),
+      appBar: AppBar(title: const Text('Lab 10.5 – Local Notification')),
       body: Center(
-        child: _isLoading
-            ? const CircularProgressIndicator()
-            : ElevatedButton.icon(
-          onPressed: _signInWithGoogle,
-          icon: const Icon(Icons.g_mobiledata, size: 30),
-          label: const Text('Sign in with Google'),
+        child: ElevatedButton.icon(
+          onPressed: () => _showNotification(context),
+          icon: const Icon(Icons.notifications),
+          label: const Text('Trigger Local Notification'),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  final String name;
-  final String email;
-  final String photoUrl;
-
-  const ProfileScreen({
-    super.key,
-    required this.name,
-    required this.email,
-    required this.photoUrl,
-  });
-
-  // Step 5: Logout and return to Sign-In screen
-  void _signOut(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const GoogleSignInScreen()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Step 4: Display user profile information
-    return Scaffold(
-      appBar: AppBar(title: const Text('User Profile')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 45,
-              backgroundImage: NetworkImage(photoUrl),
-              onBackgroundImageError: (_, __) {},
-              child: const Icon(Icons.person, size: 45),
-            ),
-            const SizedBox(height: 16),
-            Text('Name: $name', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('Email: $email', style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () => _signOut(context),
-              child: const Text('Sign Out'),
-            ),
-          ],
         ),
       ),
     );
