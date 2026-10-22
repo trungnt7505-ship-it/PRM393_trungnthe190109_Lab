@@ -1,15 +1,8 @@
 /*
- * =====================================================================
- * LAB 11.2 – Widget Testing: Task List UI
- * Step 1: Create test/widget/ folder and task_list_widget_test.dart file.
- * Step 2: Test Empty State ("No tasks yet. Add one!").
- * Step 3: Test Add Task interaction (pumpWidget, enterText, tap, pump).
- * Step 4: Test Multiple Tasks addition.
- * =====================================================================
+ * LAB 11.2 / 11.5 – Widget Testing: Task List UI
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import '../../lib/main.dart';
 import '../../lib/repositories/task_repository.dart';
 
