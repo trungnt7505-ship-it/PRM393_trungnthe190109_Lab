@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import '../repositories/task_repository.dart';
+import 'task_detail_screen.dart';
 
 /*
  * Task List Screen
- * Step: Displays task list, supports adding tasks.
+ * Displays task list, supports adding tasks, toggling status,
+ * and navigating to TaskDetailScreen upon item tap.
  */
 class TaskListScreen extends StatefulWidget {
   final TaskRepository repository;
@@ -23,7 +25,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
     if (text.isNotEmpty) {
       setState(() {
         widget.repository.addTask(
-          Task(id: DateTime.now().millisecondsSinceEpoch.toString(), title: text),
+          Task(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: text,
+          ),
         );
         _inputController.clear();
       });
@@ -59,15 +64,39 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
           Expanded(
             child: tasks.isEmpty
-            // Step: Empty State requirement
-                ? const Center(child: Text('No tasks yet. Add one!'))
+            // Empty state requirement
+                ? const Center(
+              child: Text('No tasks yet. Add one!'),
+            )
                 : ListView.builder(
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
+                // ListTile implementation with onTap navigation & checkbox toggle
                 return ListTile(
                   key: Key('taskTile_${task.id}'),
                   title: Text(task.title),
+                  trailing: Checkbox(
+                    value: task.isCompleted,
+                    onChanged: (_) {
+                      setState(() {
+                        task.toggle();
+                      });
+                    },
+                  ),
+                  onTap: () async {
+                    // Step: Navigate to TaskDetailScreen
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailScreen(
+                          task: task,
+                          repository: widget.repository,
+                        ),
+                      ),
+                    );
+                    setState(() {}); // Refresh list upon returning
+                  },
                 );
               },
             ),
