@@ -6,7 +6,7 @@ import 'task_detail_screen.dart';
 
 /*
  * =====================================================================
- * EXERCISE 12.1 — Optimize List Rebuilds in Taskly
+ * EXERCISE 12.2 — Image & Asset Optimization in Taskly
  * =====================================================================
  */
 class TaskListScreen extends StatefulWidget {
@@ -42,12 +42,30 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Taskly - Lab 12.1'),
+        title: const Text('Taskly - Lab 12.2'),
       ),
       body: Column(
         children: [
+
+          Container(
+            height: 140,
+            width: double.infinity,
+            margin: const EdgeInsets.all(8.0),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Image.asset(
+              'assets/images/banner.png',
+              fit: BoxFit.cover,
+              cacheWidth: 800,
+
+
+            ),
+          ),
+
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
               children: [
                 Expanded(
@@ -76,7 +94,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
-                // Sử dụng TaskTile đã được tách và gán ValueKey để tối ưu
                 return TaskTile(
                   task: task,
                   onToggle: (_) {
